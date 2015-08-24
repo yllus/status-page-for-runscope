@@ -69,7 +69,7 @@ class RunscopeStatus {
 	    <input type="password" id="rsp_access_token" name="rsp_access_token" value="<?php echo $str_rsp_access_token; ?>" style="width: 80%;" />
 	    <br>
 	    If you don't already have an OAuth2 access token to use, visit <a target="_blank" href="https://www.runscope.com/applications">https://www.runscope.com/applications</a> and 
-	    create one. Once it's been created, grab the <strong>something</strong> value and enter it into the field above.
+	    create one. Once it's been created, grab the <strong>Personal Access Token > Access Token</strong> value and enter it into the field above.
 
 	    <br><br>
 
@@ -83,7 +83,7 @@ class RunscopeStatus {
 
 	    <br><br>
 
-	    <strong>Note:</strong> Need more status pages? You can always create additional buckets, and then create a Page in WordPress to point to each of them. 
+	    <strong>Note:</strong> Need additional status pages for each of your buckets? You can always create additional buckets in Runscope and then create a Page in WordPress to point to each of them!
     	<?php
     }
 
