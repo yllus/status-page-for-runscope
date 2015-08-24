@@ -2,6 +2,8 @@
 get_header();
 
 the_post();
+
+RunscopeStatus::ajax_display_test_results();
 ?>
 <div class="rsp_section rsp_group">
 	<div class="rsp_col rsp_span_1_of_12">

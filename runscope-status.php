@@ -175,6 +175,115 @@ class RunscopeStatus {
 
         return $template;
     } 
+
+    public static function ajax_display_test_results() {
+    	$post_id = 79;
+
+    	$obj_response = RunscopeStatus::get_bucket_tests($post_id);
+    	if ( $obj_response->rsp_success != '0' ) {
+    		echo "Sorry, there was an issue retrieving your Runscope tests (" . $obj_response->rsp_message . ").";
+
+    		exit;
+    	}
+
+    	$arr_test_results = array();
+    	foreach ( $obj_response->data as $test ) {
+    		$obj_response_test = RunscopeStatus::get_test_results($post_id, $test->id);
+
+    		print_r($obj_response_test);
+    	}
+
+    	//print_r($obj_response);
+    	exit;
+    }
+
+    public static function get_test_results( $post_id, $test_id ) {
+    	$str_rsp_access_token 	= get_post_meta( $post_id, 'rsp_access_token', true );
+    	$str_rsp_bucket_key 	= get_post_meta( $post_id, 'rsp_bucket_key', true );
+
+    	$str_url = 'https://api.runscope.com/buckets/' . $str_rsp_bucket_key . '/tests/' . $test_id . '/results';
+    	$args = $args = array(
+			'method' 	=> 'GET',
+			'timeout' 	=> 10,
+			'sslverify' => false,
+			'headers' 	=> array(
+				'Authorization' 	=> 'Bearer ' . $str_rsp_access_token,
+			)
+		);
+
+    	$response = wp_remote_request( $str_url, $args );
+
+    	if ( is_wp_error($response) ) {
+    		$response_message = $response->get_error_message();
+
+    		$obj_response = new stdClass();
+    		$obj_response->rsp_success = '-3';
+			$obj_response->rsp_message = $response_message;
+
+			return $obj_response;
+		}
+
+		$response_code = wp_remote_retrieve_response_code( $response );
+		if ( false === strstr( $response_code, '200' ) ) {	
+			$response_message = wp_remote_retrieve_response_message( $response );
+
+			$obj_response = new stdClass();
+    		$obj_response->rsp_success = '-4';
+			$obj_response->rsp_message = $response_message;
+
+			return $obj_response;
+		}
+
+		$obj_response = json_decode( wp_remote_retrieve_body( $response ) );
+		$obj_response->rsp_success = '0';
+		$obj_response->rsp_message = 'API successfully contacted and test details retrieved.';
+
+		return $obj_response;
+    }
+
+    public static function get_bucket_tests( $post_id ) {
+    	$str_rsp_access_token 	= get_post_meta( $post_id, 'rsp_access_token', true );
+    	$str_rsp_bucket_key 	= get_post_meta( $post_id, 'rsp_bucket_key', true );
+
+    	$str_url = 'https://api.runscope.com/buckets/' . $str_rsp_bucket_key . '/tests';
+    	$args = $args = array(
+			'method' 	=> 'GET',
+			'timeout' 	=> 10,
+			'sslverify' => false,
+			'headers' 	=> array(
+				'Authorization' 	=> 'Bearer ' . $str_rsp_access_token,
+			)
+		);
+
+    	$response = wp_remote_request( $str_url, $args );
+
+    	if ( is_wp_error($response) ) {
+    		$response_message = $response->get_error_message();
+
+    		$obj_response = new stdClass();
+    		$obj_response->rsp_success = '-1';
+			$obj_response->rsp_message = $response_message;
+
+			return $obj_response;
+		}
+
+		$response_code = wp_remote_retrieve_response_code( $response );
+		if ( false === strstr( $response_code, '200' ) ) {	
+			$response_message = wp_remote_retrieve_response_message( $response );
+
+			$obj_response = new stdClass();
+    		$obj_response->rsp_success = '-2';
+			$obj_response->rsp_message = $response_message;
+
+			return $obj_response;
+		}
+
+		$obj_response = json_decode( wp_remote_retrieve_body( $response ) );
+		$obj_response->rsp_success = '0';
+		$obj_response->rsp_message = 'API successfully contacted and bucket tests retrieved.';
+
+		return $obj_response;
+    }
 } 
 add_action( 'plugins_loaded', array( 'RunscopeStatus', 'get_instance' ) );
 ?>
