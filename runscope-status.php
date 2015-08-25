@@ -58,6 +58,10 @@ class RunscopeStatus {
 
 		// Save data from our custom Runscope metabox.
 		add_action( 'save_post', array( $this, 'save_metabox_data' ), 10, 2 );
+
+		// Register a new AJAX responder to display a bucket's test results.
+		add_action( 'wp_ajax_runscope_display_test_results', array( $this, 'ajax_display_test_results' ) );
+		add_action( 'wp_ajax_nopriv_runscope_display_test_results', array( $this, 'ajax_display_test_results' ) );
     } 
 
     public static function metabox_runscope_settings( $post ) {
@@ -114,11 +118,12 @@ class RunscopeStatus {
 	}
 
     /**
-     * Enqueue a bit of CSS only on our custom page template.
+     * Enqueue a bit of CSS only on our custom page template (and make sure jQuery is enqueued on the page).
      *
      */
     public function enqueue_styles() {
 		if ( is_page_template('page-RUNSCOPESTATUS.php')  ) {
+			wp_enqueue_script( 'jquery' );
         	wp_enqueue_style( 'rsp-page-styles', plugin_dir_url( __FILE__ ) . '/runscope-status.css' );
         }
 	}
@@ -163,7 +168,7 @@ class RunscopeStatus {
             return $template;
         } 
 
-        $file = plugin_dir_path(__FILE__). get_post_meta( $post->ID, '_wp_page_template', true );
+        $file = plugin_dir_path(__FILE__) . get_post_meta( $post->ID, '_wp_page_template', true );
 		
         // Just to be safe, we check if the file exist first
         if ( file_exists( $file ) ) {
@@ -177,7 +182,14 @@ class RunscopeStatus {
     } 
 
     public static function ajax_display_test_results() {
-    	$post_id = 79;
+    	$post_id = $_GET['post_id'];
+
+    	$obj_response_bucket_details = RunscopeStatus::get_bucket_details($post_id);
+    	if ( $obj_response_bucket_details->rsp_success != '0' ) {
+    		echo "Sorry, there was an issue retrieving your Runscope tests (" . $obj_response_bucket_details->rsp_message . ").";
+
+    		exit;
+    	}
 
     	$obj_response = RunscopeStatus::get_bucket_tests($post_id);
     	if ( $obj_response->rsp_success != '0' ) {
@@ -188,64 +200,60 @@ class RunscopeStatus {
 
     	$arr_test_results = array();
     	foreach ( $obj_response->data as $test ) {
-    		$obj_response_test = RunscopeStatus::get_test_results($post_id, $test->id);
+    		$obj_response_test = RunscopeStatus::get_test_results($post_id, $test->id, $test->name, $test->last_run);
 
-    		print_r($obj_response_test);
+    		$arr_test_results[] = $obj_response_test;
     	}
 
-    	//print_r($obj_response);
+    	RunscopeStatus::theme_test_results($obj_response_bucket_details, $arr_test_results);    	
     	exit;
     }
 
-    public static function get_test_results( $post_id, $test_id ) {
-    	$str_rsp_access_token 	= get_post_meta( $post_id, 'rsp_access_token', true );
+    public static function theme_test_results( $obj_response_bucket_details, $arr_test_results ) {
+    	$str_test_results = '';
+
+    	ob_start();
+		require plugin_dir_path(__FILE__) . 'partials/partial.bucket-details.php';
+		$str_test_results = $str_test_results . ob_get_contents();
+	    ob_end_clean();
+
+    	foreach ( $arr_test_results as $test_result ) {
+    		ob_start();
+    		require plugin_dir_path(__FILE__) . 'partials/partial.test-result.php';
+    		$str_test_results = $str_test_results . ob_get_contents();
+		    ob_end_clean();
+    	}
+
+    	echo $str_test_results;
+    }
+
+    public static function get_test_results( $post_id, $test_id, $test_name, $last_run ) {
     	$str_rsp_bucket_key 	= get_post_meta( $post_id, 'rsp_bucket_key', true );
 
     	$str_url = 'https://api.runscope.com/buckets/' . $str_rsp_bucket_key . '/tests/' . $test_id . '/results';
-    	$args = $args = array(
-			'method' 	=> 'GET',
-			'timeout' 	=> 10,
-			'sslverify' => false,
-			'headers' 	=> array(
-				'Authorization' 	=> 'Bearer ' . $str_rsp_access_token,
-			)
-		);
-
-    	$response = wp_remote_request( $str_url, $args );
-
-    	if ( is_wp_error($response) ) {
-    		$response_message = $response->get_error_message();
-
-    		$obj_response = new stdClass();
-    		$obj_response->rsp_success = '-3';
-			$obj_response->rsp_message = $response_message;
-
-			return $obj_response;
-		}
-
-		$response_code = wp_remote_retrieve_response_code( $response );
-		if ( false === strstr( $response_code, '200' ) ) {	
-			$response_message = wp_remote_retrieve_response_message( $response );
-
-			$obj_response = new stdClass();
-    		$obj_response->rsp_success = '-4';
-			$obj_response->rsp_message = $response_message;
-
-			return $obj_response;
-		}
-
-		$obj_response = json_decode( wp_remote_retrieve_body( $response ) );
-		$obj_response->rsp_success = '0';
-		$obj_response->rsp_message = 'API successfully contacted and test details retrieved.';
-
-		return $obj_response;
+    	
+    	return RunscopeStatus::make_api_request( $post_id, $str_url, array('test_name' => $test_name, 'last_run' => $last_run) );
     }
 
     public static function get_bucket_tests( $post_id ) {
-    	$str_rsp_access_token 	= get_post_meta( $post_id, 'rsp_access_token', true );
     	$str_rsp_bucket_key 	= get_post_meta( $post_id, 'rsp_bucket_key', true );
 
     	$str_url = 'https://api.runscope.com/buckets/' . $str_rsp_bucket_key . '/tests';
+
+		return RunscopeStatus::make_api_request( $post_id, $str_url );
+    }
+
+    public static function get_bucket_details( $post_id ) {
+    	$str_rsp_bucket_key 	= get_post_meta( $post_id, 'rsp_bucket_key', true );
+
+    	$str_url = 'https://api.runscope.com/buckets/' . $str_rsp_bucket_key;
+
+		return RunscopeStatus::make_api_request( $post_id, $str_url );
+    }
+
+    public static function make_api_request( $post_id, $str_url, $additional_params = array() ) {
+    	$str_rsp_access_token 	= get_post_meta( $post_id, 'rsp_access_token', true );
+
     	$args = $args = array(
 			'method' 	=> 'GET',
 			'timeout' 	=> 10,
@@ -281,6 +289,12 @@ class RunscopeStatus {
 		$obj_response = json_decode( wp_remote_retrieve_body( $response ) );
 		$obj_response->rsp_success = '0';
 		$obj_response->rsp_message = 'API successfully contacted and bucket tests retrieved.';
+
+		if ( sizeof($additional_params) > 0 ) {
+			foreach ( $additional_params as $key => $val ) {
+				$obj_response->$key = $val;
+			}
+		}
 
 		return $obj_response;
     }
