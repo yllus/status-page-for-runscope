@@ -124,6 +124,7 @@ class RunscopeStatus {
     public function enqueue_styles() {
 		if ( is_page_template('page-RUNSCOPESTATUS.php')  ) {
 			wp_enqueue_script( 'jquery' );
+            wp_enqueue_style( 'open-sans', '//fonts.googleapis.com/css?family=Open+Sans' );
         	wp_enqueue_style( 'rsp-page-styles', plugin_dir_url( __FILE__ ) . '/runscope-status.css' );
         }
 	}
@@ -212,17 +213,29 @@ class RunscopeStatus {
     public static function theme_test_results( $obj_response_bucket_details, $arr_test_results ) {
     	$str_test_results = '';
 
-    	ob_start();
-		require plugin_dir_path(__FILE__) . 'partials/partial.bucket-details.php';
-		$str_test_results = $str_test_results . ob_get_contents();
-	    ob_end_clean();
-
+        $arr_bucket_status = array('passed' => 0, 'total' => 0);
     	foreach ( $arr_test_results as $test_result ) {
-    		ob_start();
-    		require plugin_dir_path(__FILE__) . 'partials/partial.test-result.php';
-    		$str_test_results = $str_test_results . ob_get_contents();
-		    ob_end_clean();
+            if ( sizeof($test_result->data) > 0 ) {
+                // If all of our assertions passed, consider the Test passed.
+                if ( $test_result->data[0]->assertions_failed == 0 ) {
+                    $arr_bucket_status['passed'] = $arr_bucket_status['passed'] + 1;
+                }
+
+                // Theme the Test results and add it to our output string.
+                ob_start();
+                require plugin_dir_path(__FILE__) . 'partials/partial.test-result.php';
+                $str_test_results = $str_test_results . ob_get_contents();
+                ob_end_clean();
+
+                $arr_bucket_status['total'] = $arr_bucket_status['total'] + 1;
+            }
     	}
+
+        // Theme the bucket details, placing it at the top of our output string.
+        ob_start();
+        require plugin_dir_path(__FILE__) . 'partials/partial.bucket-details.php';
+        $str_test_results = ob_get_contents() . $str_test_results;
+        ob_end_clean();
 
     	echo $str_test_results;
     }
@@ -252,49 +265,54 @@ class RunscopeStatus {
     }
 
     public static function make_api_request( $post_id, $str_url, $additional_params = array() ) {
-    	$str_rsp_access_token 	= get_post_meta( $post_id, 'rsp_access_token', true );
+        $cache_key = 'rsp-api-request-' . $post_id . '-' . md5($str_url . serialize($additional_params));
+        if ( false === ( $obj_response = get_transient( $cache_key ) ) ) {
+            $str_rsp_access_token   = get_post_meta( $post_id, 'rsp_access_token', true );
 
-    	$args = $args = array(
-			'method' 	=> 'GET',
-			'timeout' 	=> 10,
-			'sslverify' => false,
-			'headers' 	=> array(
-				'Authorization' 	=> 'Bearer ' . $str_rsp_access_token,
-			)
-		);
+            $args = $args = array(
+                'method'    => 'GET',
+                'timeout'   => 10,
+                'sslverify' => false,
+                'headers'   => array(
+                    'Authorization'     => 'Bearer ' . $str_rsp_access_token,
+                )
+            );
 
-    	$response = wp_remote_request( $str_url, $args );
+            $response = wp_remote_request( $str_url, $args );
 
-    	if ( is_wp_error($response) ) {
-    		$response_message = $response->get_error_message();
+            if ( is_wp_error($response) ) {
+                $response_message = $response->get_error_message();
 
-    		$obj_response = new stdClass();
-    		$obj_response->rsp_success = '-1';
-			$obj_response->rsp_message = $response_message;
+                $obj_response = new stdClass();
+                $obj_response->rsp_success = '-1';
+                $obj_response->rsp_message = $response_message;
 
-			return $obj_response;
-		}
+                return $obj_response;
+            }
 
-		$response_code = wp_remote_retrieve_response_code( $response );
-		if ( false === strstr( $response_code, '200' ) ) {	
-			$response_message = wp_remote_retrieve_response_message( $response );
+            $response_code = wp_remote_retrieve_response_code( $response );
+            if ( false === strstr( $response_code, '200' ) ) {  
+                $response_message = wp_remote_retrieve_response_message( $response );
 
-			$obj_response = new stdClass();
-    		$obj_response->rsp_success = '-2';
-			$obj_response->rsp_message = $response_message;
+                $obj_response = new stdClass();
+                $obj_response->rsp_success = '-2';
+                $obj_response->rsp_message = $response_message;
 
-			return $obj_response;
-		}
+                return $obj_response;
+            }
 
-		$obj_response = json_decode( wp_remote_retrieve_body( $response ) );
-		$obj_response->rsp_success = '0';
-		$obj_response->rsp_message = 'API successfully contacted and bucket tests retrieved.';
+            $obj_response = json_decode( wp_remote_retrieve_body( $response ) );
+            $obj_response->rsp_success = '0';
+            $obj_response->rsp_message = 'API successfully contacted and bucket tests retrieved.';
 
-		if ( sizeof($additional_params) > 0 ) {
-			foreach ( $additional_params as $key => $val ) {
-				$obj_response->$key = $val;
-			}
-		}
+            if ( sizeof($additional_params) > 0 ) {
+                foreach ( $additional_params as $key => $val ) {
+                    $obj_response->$key = $val;
+                }
+            }
+
+            set_transient($cache_key, $obj_response, 300); // Cache for 5 minutes.
+        }
 
 		return $obj_response;
     }

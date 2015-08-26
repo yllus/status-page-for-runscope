@@ -97,6 +97,7 @@ MORE INFORMATION: http://www.responsivegridsystem.com/calculator/
 
 /* Test Box Styling */
 .rsp-container {
+  font-family: 'Open Sans', sans-serif;
   width: 90%; 
   float: none; 
   border-top-width: 1px; 
@@ -108,13 +109,24 @@ MORE INFORMATION: http://www.responsivegridsystem.com/calculator/
   border-color: #E0E0E0;
 }
 
+.rsp-container-pass {
+  background-color: #419641;
+  color: #ffffff;
+}
+
 .rsp-container-fail {
-  background-color: #f2dede;
+  background-color: #da291c;
+  color: #ffffff;
 }
 
 .rsp-inner-container {
   width: 100%; 
   height: 50px;
+}
+
+.rsp-bucket-status {
+  font-size: 24px; 
+  line-height: 48px;
 }
 
 .rsp-test-info {
@@ -123,11 +135,12 @@ MORE INFORMATION: http://www.responsivegridsystem.com/calculator/
 
 .rsp-test-name {
   font-size: 16px; 
-  font-weight: 500; 
+  font-weight: 800; 
 }
 
 .rsp-last-run {
   font-size: 13px; 
+  color: #787878;
 }
 
 .rsp-result {
@@ -137,9 +150,9 @@ MORE INFORMATION: http://www.responsivegridsystem.com/calculator/
 }
 
 .rsp-result-pass {
-  color: #2fdab8;
+  color: #419641;
 }
 
 .rsp-result-fail {
-  color: #000000;
+  color: #da291c;
 }
