@@ -37,8 +37,8 @@ the page in WordPress set that way, or password protected) without having to giv
 
 = Tips & Tricks =
 
-* If you've got object caching turned on in WordPress, the page will automatically cache the last response it got from Runscope for 5 minutes. It'll mean 
-  the results of your page will be slightly out of date (by up to 5 minutes), but the results will display much quicker.
+* If you've got object caching turned on in WordPress, the page will automatically cache the last response it got from Runscope for 60 seconds. It'll mean 
+  the results of your page will be slightly out of date (by up to 60 seconds), but the results will display much quicker.
 
 * It's totally possible to display multiple status pages for different buckets in Runscope! Just create a new Page per each bucket and make sure to enter
   the right bucket key into each.

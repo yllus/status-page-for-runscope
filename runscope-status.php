@@ -315,7 +315,7 @@ class RunscopeStatus {
                 }
             }
 
-            set_transient($cache_key, $obj_response, 300); // Cache for 5 minutes.
+            set_transient($cache_key, $obj_response, 60); // Cache for 1 minute.
         }
 
 		return $obj_response;
