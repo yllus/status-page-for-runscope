@@ -255,7 +255,7 @@ class RunscopeStatus {
     public static function get_bucket_tests( $post_id ) {
     	$str_rsp_bucket_key 	= get_post_meta( $post_id, 'rsp_bucket_key', true );
 
-    	$str_url = 'https://api.runscope.com/buckets/' . $str_rsp_bucket_key . '/tests';
+    	$str_url = 'https://api.runscope.com/buckets/' . $str_rsp_bucket_key . '/tests?count=1000';
 
 		return RunscopeStatus::make_api_request( $post_id, $str_url );
     }
