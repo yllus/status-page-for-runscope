@@ -113,6 +113,10 @@ class RunscopeStatus {
 	public static function save_metabox_data() {
 	    global $post;
 
+        if ( !isset($_POST['rsp_access_token']) || !isset($_POST['rsp_bucket_key']) ) {
+            return;
+        }
+
 	    update_post_meta( $post->ID, 	'rsp_access_token', 	$_POST['rsp_access_token'] );
 		update_post_meta( $post->ID, 	'rsp_bucket_key', 		$_POST['rsp_bucket_key'] );
 	}
