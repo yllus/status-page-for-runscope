@@ -9,7 +9,7 @@ if ( $test_result->data[0]->assertions_failed == 0 ) {
 	$str_result_message = 'Passed';
 }
 
-$minutes_last_run = ltrim(gmdate("s", (time() - $test_result->data[0]->finished_at)), '0');
+$minutes_last_run = (int) ltrim(gmdate("s", (time() - $test_result->data[0]->finished_at)), '0');
 ?>
 <div class="rsp-container">
     <div class="rsp-inner-container">

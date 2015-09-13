@@ -113,6 +113,10 @@ class RunscopeStatus {
 	public static function save_metabox_data() {
 	    global $post;
 
+        if ( !isset($_POST['rsp_access_token']) || !isset($_POST['rsp_bucket_key']) ) {
+            return;
+        }
+
 	    update_post_meta( $post->ID, 	'rsp_access_token', 	$_POST['rsp_access_token'] );
 		update_post_meta( $post->ID, 	'rsp_bucket_key', 		$_POST['rsp_bucket_key'] );
 	}
@@ -124,6 +128,9 @@ class RunscopeStatus {
     public function enqueue_styles() {
 		if ( is_page_template('page-RUNSCOPESTATUS.php')  ) {
 			wp_enqueue_script( 'jquery' );
+            wp_enqueue_script( 'moment', plugin_dir_url( __FILE__ ) . '/js/moment.min.js' );
+            wp_enqueue_script( 'livestamp', plugin_dir_url( __FILE__ ) . '/js/livestamp.min.js' );
+
             wp_enqueue_style( 'open-sans', '//fonts.googleapis.com/css?family=Open+Sans' );
         	wp_enqueue_style( 'rsp-page-styles', plugin_dir_url( __FILE__ ) . '/runscope-status.css' );
         }
@@ -251,7 +258,7 @@ class RunscopeStatus {
     public static function get_bucket_tests( $post_id ) {
     	$str_rsp_bucket_key 	= get_post_meta( $post_id, 'rsp_bucket_key', true );
 
-    	$str_url = 'https://api.runscope.com/buckets/' . $str_rsp_bucket_key . '/tests';
+    	$str_url = 'https://api.runscope.com/buckets/' . $str_rsp_bucket_key . '/tests?count=1000';
 
 		return RunscopeStatus::make_api_request( $post_id, $str_url );
     }
@@ -311,7 +318,7 @@ class RunscopeStatus {
                 }
             }
 
-            set_transient($cache_key, $obj_response, 300); // Cache for 5 minutes.
+            set_transient($cache_key, $obj_response, 60); // Cache for 1 minute.
         }
 
 		return $obj_response;
