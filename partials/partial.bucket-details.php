@@ -17,7 +17,7 @@ if ( $arr_bucket_status['passed'] == $arr_bucket_status['total'] ) {
 				<?php echo $str_bucket_status; ?>
 				
 				<div style="font-size: 12px;">
-					Last refreshed <span data-livestamp="<?php echo time(); ?>"></span>
+					Last refreshed <span data-livestamp="<?php echo current_time('timestamp'); ?>"></span>
 				</div>
 		    </div>
     	</div>
