@@ -27,12 +27,17 @@ the_post();
 
 <script>
 jQuery(document).ready(function($) {
-	jQuery.ajax({
-	    url: '/wp-admin/admin-ajax.php?action=runscope_display_test_results&post_id=<?php echo get_the_ID(); ?>'
-	})
-	.done(function( data ) {
-	    jQuery('#div_rsp_content').html(data);
-	});
+	function display_test_results() {
+		jQuery.ajax({
+		    url: '/wp-admin/admin-ajax.php?action=runscope_display_test_results&post_id=<?php echo get_the_ID(); ?>'
+		})
+		.done(function( data ) {
+		    jQuery('#div_rsp_content').html(data);
+		});
+	}
+
+	display_test_results();
+	setInterval(display_test_results, 60000);
 });
 </script>
 <?php

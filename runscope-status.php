@@ -137,8 +137,8 @@ class RunscopeStatus {
      *
      */
     public function enqueue_styles() {
-        if ( is_page_template('page-RUNSCOPESTATUS.php')  ) {
-            wp_enqueue_script( 'jquery' );
+		if ( is_page_template('page-RUNSCOPESTATUS.php')  ) {
+			wp_enqueue_script( 'jquery' );
             wp_enqueue_script( 'moment', plugin_dir_url( __FILE__ ) . '/js/moment.min.js' );
             wp_enqueue_script( 'livestamp', plugin_dir_url( __FILE__ ) . '/js/livestamp.min.js' );
 
