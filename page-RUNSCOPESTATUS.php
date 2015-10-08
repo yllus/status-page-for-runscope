@@ -29,7 +29,7 @@ the_post();
 jQuery(document).ready(function($) {
 	function display_test_results() {
 		jQuery.ajax({
-		    url: '/wp-admin/admin-ajax.php?action=runscope_display_test_results&post_id=<?php echo get_the_ID(); ?>'
+		    url: ajaxurl + '?action=runscope_display_test_results&post_id=<?php echo get_the_ID(); ?>'
 		})
 		.done(function( data ) {
 		    jQuery('#div_rsp_content').html(data);
