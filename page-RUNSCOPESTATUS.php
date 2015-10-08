@@ -33,6 +33,9 @@ jQuery(document).ready(function($) {
 		})
 		.done(function( data ) {
 		    jQuery('#div_rsp_content').html(data);
+
+		    var str_timestamp_now = new Date().getTime() / 1000;
+		    jQuery('#bucket-last-refreshed').data('livestamp', str_timestamp_now);
 		});
 	}
 
