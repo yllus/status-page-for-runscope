@@ -1,7 +1,7 @@
 <?php
 /*
- Plugin Name: Runscope Status Page
- Plugin URI: https://github.com/yllus/runscope-status
+ Plugin Name: API Status Page
+ Plugin URI: https://github.com/yllus/api-status-page
  Description: Display a pretty status page at a URL on your WordPress website, with all data pulled from a Runscope bucket.
  Author: Sully Syed
  Version: 1.0
@@ -47,7 +47,7 @@ class RunscopeStatus {
 
         // Add your templates to this array.
         $this->templates = array(
-            'page-RUNSCOPESTATUS.php'     => 'Runscope Status Page',
+            'page-RUNSCOPESTATUS.php'     => 'API Status Page',
         );
 
         // If we're viewing our custom page template, enqueue a specific stylesheet.
@@ -111,7 +111,7 @@ class RunscopeStatus {
             $template_file = get_post_meta( $post_id, '_wp_page_template', true );
 
             if ( $template_file == 'page-RUNSCOPESTATUS.php' ) {
-                add_meta_box('runscope_metabox_text_box', 'Runscope Status Page Settings', array( $this, 'metabox_runscope_settings'), 'page', 'normal', 'high');
+                add_meta_box('runscope_metabox_text_box', 'API Status Page Settings', array( $this, 'metabox_runscope_settings'), 'page', 'normal', 'high');
             }
         }
     }
