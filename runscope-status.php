@@ -1,7 +1,7 @@
 <?php
 /*
- Plugin Name: API Status Page
- Plugin URI: https://github.com/yllus/api-status-page
+ Plugin Name: Status Page for Runscope
+ Plugin URI: https://github.com/yllus/status-page-for-runscope
  Description: Display a pretty status page at a URL on your WordPress website, with all data pulled from a Runscope bucket.
  Author: Sully Syed
  Version: 1.0
