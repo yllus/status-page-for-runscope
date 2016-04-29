@@ -23,6 +23,8 @@ the_post();
 	<div class="rsp_col rsp_span_1_of_12">
 		&nbsp;
 	</div>
+
+	<?php the_content(); ?>
 </div>
 
 <script>
