@@ -137,8 +137,8 @@ class RunscopeStatus {
      *
      */
     public function enqueue_styles() {
-		if ( is_page_template('page-RUNSCOPESTATUS.php')  ) {
-			wp_enqueue_script( 'jquery' );
+        if ( is_page_template('page-RUNSCOPESTATUS.php')  ) {
+            wp_enqueue_script( 'jquery' );
             wp_enqueue_script( 'moment', plugin_dir_url( __FILE__ ) . '/js/moment.min.js' );
             wp_enqueue_script( 'livestamp', plugin_dir_url( __FILE__ ) . '/js/livestamp.min.js' );
 
@@ -183,7 +183,12 @@ class RunscopeStatus {
     public function view_page_template( $template ) {
         global $post;
 
-        if ( !isset($this->templates[get_post_meta( $post->ID, '_wp_page_template', true )] ) ) {
+        if ( is_null($post) ) {
+            return $template;
+        }
+
+        $page_template = get_post_meta( $post->ID, '_wp_page_template', true );
+        if ( !isset($this->templates[$page_template] ) ) {
             return $template;
         } 
 
