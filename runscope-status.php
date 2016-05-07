@@ -47,7 +47,7 @@ class RunscopeStatus {
 
         // Add your templates to this array.
         $this->templates = array(
-            'page-RUNSCOPESTATUS.php'     => 'API Status Page',
+            'page-RUNSCOPESTATUS.php'     => 'Status Page for Runscope',
         );
 
         // If we're viewing our custom page template, enqueue a specific stylesheet.
@@ -111,7 +111,7 @@ class RunscopeStatus {
             $template_file = get_post_meta( $post_id, '_wp_page_template', true );
 
             if ( $template_file == 'page-RUNSCOPESTATUS.php' ) {
-                add_meta_box('runscope_metabox_text_box', 'API Status Page Settings', array( $this, 'metabox_runscope_settings'), 'page', 'normal', 'high');
+                add_meta_box('runscope_metabox_text_box', 'Status Page for Runscope Settings', array( $this, 'metabox_runscope_settings'), 'page', 'normal', 'high');
             }
         }
     }
