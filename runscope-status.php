@@ -4,7 +4,7 @@
  Plugin URI: https://github.com/yllus/status-page-for-runscope
  Description: Display a pretty status page at a URL on your WordPress website, with all data pulled from a Runscope bucket.
  Author: Sully Syed
- Version: 1.0
+ Version: 1.0.1
  Author URI: http://yllus.com/
 */
 class RunscopeStatus {
@@ -36,7 +36,19 @@ class RunscopeStatus {
         $this->templates = array();
 
         // Add a filter to the attributes metabox to inject template into the cache.
-        add_filter( 'page_attributes_dropdown_pages_args', array( $this, 'register_page_template' ) );
+        if ( version_compare( floatval( get_bloginfo( 'version' ) ), '4.7', '<' ) ) {
+            // Handle WordPress 4.6 and older.
+            add_filter(
+                'page_attributes_dropdown_pages_args',
+                array( $this, 'register_page_template' )
+            );
+        } 
+        else {
+            // Add a filter to WordPress v4.7 version attributes metabox.
+            add_filter(
+                'theme_page_templates', array( $this, 'add_new_template' )
+            );
+        }
 
         // Add a filter to the save post to inject out template into the page cache
         add_filter( 'wp_insert_post_data', array( $this, 'register_page_template' ) );
@@ -137,8 +149,8 @@ class RunscopeStatus {
      *
      */
     public function enqueue_styles() {
-        if ( is_page_template('page-RUNSCOPESTATUS.php')  ) {
-            wp_enqueue_script( 'jquery' );
+		if ( is_page_template('page-RUNSCOPESTATUS.php')  ) {
+			wp_enqueue_script( 'jquery' );
             wp_enqueue_script( 'moment', plugin_dir_url( __FILE__ ) . '/js/moment.min.js' );
             wp_enqueue_script( 'livestamp', plugin_dir_url( __FILE__ ) . '/js/livestamp.min.js' );
 
@@ -150,6 +162,8 @@ class RunscopeStatus {
     /**
      * Adds our template to the pages cache in order to trick WordPress
      * into thinking the template file exists where it doens't really exist.
+     *
+     * This is for WordPress versions v4.6 and older.
      *
      */
     public function register_page_template( $atts ) {
@@ -176,6 +190,19 @@ class RunscopeStatus {
 
         return $atts;
     } 
+
+    /**
+     * Adds our template to the pages cache in order to trick WordPress
+     * into thinking the template file exists where it doens't really exist.
+     *
+     * This is for WordPress versions v4.7 and newer.
+     *
+     */
+    public function add_new_template( $posts_templates ) {
+        $posts_templates = array_merge( $posts_templates, $this->templates );
+
+        return $posts_templates;
+    }
 
     /**
      * Checks if the template is assigned to the page

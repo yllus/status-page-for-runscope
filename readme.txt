@@ -1,9 +1,9 @@
 === Status Page for Runscope ===
 Contributors: yllus
-Donate link: https://github.com/yllus/api-status-page
+Donate link: https://github.com/yllus/status-page-for-runscope
 Tags: 
 Requires at least: 3.5.2
-Tested up to: 4.3
+Tested up to: 4.7.5
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -30,7 +30,8 @@ the page in WordPress set that way, or password protected) without having to giv
 4. In the **Publish** metabox, click the **Publish** button to save and create the new Page.
 
 5. On the edit screen of your new Page, a metabox called **Status Page for Runscope Settings** will appear. Following the instructions provided in the 
-   metabox, enter a **Access Token** and **Bucket Key**, and save those settings by clicking the **Update** button.
+   metabox, enter a **Access Token** and **Bucket Key**. You may optionally add a value to the **Environment Name** field if you have multiple Environments 
+   and want to pull results from one specifically. Save the settings by clicking the **Update** button.
 
 6. View your Page. If your Runscope settings were entered correctly, the page should pause briefly, and then show the last state of each Test in the 
    bucket, as well as a summary of the bucket at the top of the page. Done!
@@ -53,10 +54,18 @@ the page in WordPress set that way, or password protected) without having to giv
 
 == Changelog ==
 
+= 1.0.1 =
+* Added compatibility to WordPress v4.7 and beyond.
+* Added an "Environment Name" field; otherwise if multiple Environments exist you may see duplicate results.
+
 = 1.0 =
 * Initial release; tested compatibility with WordPress v4.2.4.
 
 == Upgrade Notice ==
+
+= 1.0.1 =
+* Added compatibility to WordPress v4.7 and beyond.
+* Added an "Environment Name" field; otherwise if multiple Environments exist you may see duplicate results.
 
 = 1.0 =
 * Initial release.

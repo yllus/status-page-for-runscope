@@ -8,8 +8,11 @@ if ( $arr_bucket_status['passed'] == $arr_bucket_status['total'] ) {
 	$str_bucket_status = 'System Status: Fully Online';
 }
 ?>
-<h1 style="font-family: 'Open Sans', sans-serif;"><?php echo $str_bucket_name; ?></h1>
-
+<div class="rsp-container" style="background-color: #333;">
+	<div>
+		<h1 style="font-family: 'Open Sans', sans-serif; color: #ffffff; text-transform: uppercase;"><?php echo $str_bucket_name; ?></h1>
+	</div>
+</div>
 <div class="rsp-container <?php echo $str_container_class; ?>">
     <div class="rsp-inner-container">
     	<div>
@@ -23,5 +26,3 @@ if ( $arr_bucket_status['passed'] == $arr_bucket_status['total'] ) {
     	</div>
 	</div>
 </div>
-
-<br><br>

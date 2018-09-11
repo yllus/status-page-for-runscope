@@ -102,7 +102,8 @@ MORE INFORMATION: http://www.responsivegridsystem.com/calculator/
 
 .rsp-container {
   font-family: 'Open Sans', sans-serif;
-  width: 90%; 
+  width: 100%; 
+  max-width: 100%;
   float: none; 
   border-top-width: 1px; 
   border-bottom-width: 1px; 
